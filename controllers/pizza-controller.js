@@ -5,29 +5,40 @@ const pizzaController = {
   // get all pizzas
   getAllPizza(req, res) {
     Pizza.find({})
-    .then(dbPizzaData => res.json(dbPizzaData))
-    .catch(err => {
-      console.log(err);
-      res.status(500).json(err);
-    });
+      .populate({
+        path: 'comments',
+        select: '-__v'
+      })
+      .select('-__v')
+      .sort({ _id: -1 })
+      .then(dbPizzaData => res.json(dbPizzaData))
+      .catch(err => {
+        console.log(err);
+        res.status(400).json(err);
+      });
   },
 
   // get one pizza by id
-  getPizzaById({ params }, res) {
-    Pizza.findOne({ _id: params.id })
+// get one pizza by id
+getPizzaById({ params }, res) {
+  Pizza.findOne({ _id: params.id })
+    .populate({
+      path: 'comments',
+      select: '-__v'
+    })
+    .select('-__v')
     .then(dbPizzaData => {
-      // if no pizza is found, send 404
       if (!dbPizzaData) {
-        res.status(404).json({ message: 'No pizza found with this id' });
+        res.status(404).json({ message: 'No pizza found with this id!' });
         return;
       }
-      res.json(dbPizzaData)
+      res.json(dbPizzaData);
     })
     .catch(err => {
       console.log(err);
       res.status(400).json(err);
     });
-  },
+},
   
   // createPizza
   createPizza({ body }, res) {
@@ -36,9 +47,9 @@ const pizzaController = {
     .catch(err => res.status(400).json(err));
   },
 
-  // update pizza by id
+// update pizza by id
 updatePizza({ params, body }, res) {
-  Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true })
+  Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true, runValidators: true })
     .then(dbPizzaData => {
       if (!dbPizzaData) {
         res.status(404).json({ message: 'No pizza found with this id!' });
@@ -51,7 +62,7 @@ updatePizza({ params, body }, res) {
 
 // delete pizza
 deletePizza({ params }, res) {
-  Pizza.findOneAndDelete({ _id: params.id })
+  Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true })
     .then(dbPizzaData => {
       if (!dbPizzaData) {
         res.status(404).json({ message: 'No pizza found with this id!' });
@@ -62,5 +73,6 @@ deletePizza({ params }, res) {
     .catch(err => res.status(400).json(err));
 }
 };
+
 
   module.exports = pizzaController;

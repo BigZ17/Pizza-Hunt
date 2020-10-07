@@ -10,7 +10,7 @@ const {
 // Set up GET all and POST at /api/pizzas
 // /api/pizzas
 router
-  .route('/')
+  .route('/routes/api')
   .get(getAllPizza)
   .post(createPizza);
 
